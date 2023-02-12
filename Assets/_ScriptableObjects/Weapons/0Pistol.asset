@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f70e8d57d2840b34fbbe814b193b407f, type: 3}
+  m_Name: 0Pistol
+  m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: 933d22e526d18a543bc255773bf7f5af, type: 3}
+  shotAudio: {fileID: 8300000, guid: 21b258f9dcd11f142b4073331b3334d1, type: 3}
+  reloadWeapAudio: {fileID: 8300000, guid: f326b9a0346ccb143be69eb2dc4e6fe8, type: 3}
+  storeMagazine: 8
+  reloadMagazine: 2
+  reloadTime: 0.5
+  weaponDamage: 1
+  numberOfBullets: 1
+  bulletSpeed: 6
+  cost: 5

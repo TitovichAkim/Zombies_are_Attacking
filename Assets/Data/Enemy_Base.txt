@@ -1,0 +1,13 @@
+Zombie_0 5 1 10 6 1 1 1 1 1 0
+Zombie_1 8 0,8 8 10 1 2 0,5 2 1 0
+Zombie_2 0 0 0 0 0 0 0 0 0 0
+Zombie_3 0 0 0 0 0 0 0 0 0 0
+Fast_Zombie_0 3 3 30 6 0,5 1 0,35 2 2 0
+Fast_Zombie_1 6 3 30 10 0,5 2 0,35 3 2 0
+Fast_Zombie_2 0 0 0 0 0 0 0 0 0 0
+Dog_Zombie_0 7 4 35 18 2 1 1 5 3 0
+Dog_Zombie_1 12 5 35 22 1 1 1 6 5 0
+Dog_Zombie_2 0 0 0 0 0 0 0 0 0 0
+Slow_Zombie_0 50 0,7 7 48 2 1 1 10 7 0
+Slow_Zombie_1 75 0,6 6 60 1,8 2 1 15 10 0
+Slow_Zombie_2 0 0 0 0 0 0 0 0 0 0
