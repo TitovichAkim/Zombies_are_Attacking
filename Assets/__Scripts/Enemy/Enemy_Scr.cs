@@ -35,16 +35,20 @@ public class Enemy_Scr:MonoBehaviour
 
     [Header("SetDynamically")]
     public bool                     forcedGoalBool = false; // Является ли этот объект приоритетным
+    private Animator                animator;               // Аниматор противника
     private GameObject              _targetGO;              // Целевой объект 
 
     public void Start ()
     {
         _enemyAttacking = GetComponent<EnemyAttacking>();               // Заполнить ссылку на скрипт атаки
         rigid2D = this.gameObject.GetComponent<Rigidbody2D>();          // Заполнить ссылку на Rigidbody2d объекта
+        animator = GetComponentInChildren<Animator>();                  // Заполнить ссылку на аниматор
 
         //attackingZone.GetComponent<CircleCollider2D>().radius = enemyParametersSO.attackingZoneRadius;
         attackingZone.GetComponent<EnemyAttackingZone>().enemyScript = this;
+
         CREATE_AUDIO_SOURSE();
+        StateRedactor();
     }
 
     public void CREATE_AUDIO_SOURSE ()      // Создает компонент, воспроизводящий звуки зомби и настраивает его
@@ -139,6 +143,8 @@ public class Enemy_Scr:MonoBehaviour
                 RepeatTheSound();
                 break;
             case enemyState.stalking:
+                animator.SetBool("target", true);
+                animator.SetBool("move", true);
 
                 navigation.agent.speed =  enemyParametersSO.speedOfMovement;                            // Возобновить скорость навигации
                 navigation.InvokeRepeating("UpdatePlayerPosition", 0f, 1f);                             // Запустить цикл перерисовки пути к цели
@@ -146,6 +152,8 @@ public class Enemy_Scr:MonoBehaviour
                 break;
 
             case enemyState.attacking:
+                animator.SetBool("target", true);
+                animator.SetBool("move", false);
 
                 navigation.agent.speed = 0;                                                             // Скорость - ноль
                 _enemyAttacking.targetGO = _targetGO;                                                   // назначить цель для атаки

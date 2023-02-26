@@ -33,8 +33,8 @@ public class EnemyAttacking:MonoBehaviour
     {
         while(_enemyScript.state == enemyState.attacking)   // Пока действует режим атаки
         {
-            StartCoroutine(SerialAttackTimer());            // Периодически выполнять серию атак
             yield return new WaitForSeconds(enemyParametersSO.serialReload);    // Делать это с указанным интервалом
+            StartCoroutine(SerialAttackTimer());            // Периодически выполнять серию атак
         }
     }
     public IEnumerator SerialAttackTimer ()                 // А тут выполняется та самая серия атак

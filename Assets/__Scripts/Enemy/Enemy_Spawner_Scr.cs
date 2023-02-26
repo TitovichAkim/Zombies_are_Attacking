@@ -183,7 +183,7 @@ public class Enemy_Spawner_Scr:MonoBehaviour
         enemyAttacking.enemyParametersSO = enemySOBase[enemyIndex];
         navigationEnemy.enemyParametersSO = enemySOBase[enemyIndex];
 
-        scriptEnemy.StateRedactor();                                    // Ќазначить новое состо€ние противника
+        //scriptEnemy.StateRedactor();                                    // Ќазначить новое состо€ние противника
 
         spawnList[random] = new Vector2(spawnList[random].x, spawnList[random].y - 1); // ќтн€ть единицу от количества врагов используемого сейчас типв
         if(spawnList[random][1] == 0)                                   // ≈сли количество врагов данного типа равно нулю

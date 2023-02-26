@@ -49,12 +49,11 @@ public class MenuScript:MonoBehaviour
         Destroy(addBannerAnchor);
         SceneManager.LoadScene("1_Tower_Assault_0");
     }
+
     public void Load_Game_Start ()
     {
         MenuPanel.SetActive(false);
         load_Panel.SetActive(true);
-        // StaticDATA.loadParameter = 1;
-        // SceneManager.LoadScene("_sea");
     }
 
     public void GoExit ()
