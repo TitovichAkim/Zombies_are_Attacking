@@ -98,7 +98,7 @@ public class Game_Menu_Scr:MonoBehaviour
         else if(b == "NO")
         {
             PLAYER_DESTROY(mainCamera.GetComponent<Enemy_Spawner_Scr>().score);
-            playerGO.GetComponent<Player_Scr>().adBool = true;
+            playerGO.GetComponent<PlayerHealth>().adBool = true;
         }
     }
 }

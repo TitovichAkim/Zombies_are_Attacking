@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5453ef29968ce94b977e8bbbbbb5131, type: 3}
+  m_Name: Sounds
+  m_EditorClassIdentifier: 
+  zombieWalkingSounds:
+  - {fileID: 8300000, guid: 92dc3827cc9adb24497a6994f3607f47, type: 3}
+  - {fileID: 8300000, guid: 104655e7388cb2a42acad2ba11bf0626, type: 3}
+  - {fileID: 8300000, guid: 843963153e30e384faf9ac942e88f4b3, type: 3}
+  - {fileID: 8300000, guid: 12e5f450c64d6c547a81d57826f59ae8, type: 3}
+  - {fileID: 8300000, guid: dcbd4005b9b86db409a8883f4a062733, type: 3}
+  - {fileID: 8300000, guid: 69e9d8c8db391be4fa1e8ed7a3ee41e6, type: 3}
+  - {fileID: 8300000, guid: 5b2c32f889574b24988bed2ddbb25319, type: 3}
+  - {fileID: 8300000, guid: 57b118eba59ff384bbce4b319efffa7f, type: 3}
+  - {fileID: 8300000, guid: ddafa32ffd437044f8b712584e6331ad, type: 3}
+  - {fileID: 8300000, guid: bf9949c9f75f4a24e8e3ab17b72c47a4, type: 3}
+  - {fileID: 8300000, guid: 758e02e0713be844fad56027d008e6a7, type: 3}
+  - {fileID: 8300000, guid: 2e26c8f7e2ff2e946876a9443f85ea75, type: 3}
+  - {fileID: 8300000, guid: 7b2c4a0e74eb84944aa80ea70597b246, type: 3}
+  - {fileID: 8300000, guid: e6e3c0098f7026b4bb1b4e520c914a10, type: 3}
+  - {fileID: 8300000, guid: dc655de11210c474baf94b3301df5fda, type: 3}
+  - {fileID: 8300000, guid: 275091cc491e00a49b0b9eedf7479eab, type: 3}
+  - {fileID: 8300000, guid: 7db2c07a9d47b2d40aa900cbee583043, type: 3}
+  zombieBiteSounds:
+  - {fileID: 8300000, guid: 3ad4857348c9e24458234865114c7eec, type: 3}
+  - {fileID: 8300000, guid: 394835899a9ab3649b8277a2bbeebee4, type: 3}
+  - {fileID: 8300000, guid: e0fc6e420b54fa644ab97f8f6a5d9dff, type: 3}
+  - {fileID: 8300000, guid: dbcd7db8af98ee24dac1f947570221a1, type: 3}
+  - {fileID: 8300000, guid: a997a09a9debd6042a324ad44e2b1ad4, type: 3}
+  - {fileID: 8300000, guid: ba75bcf562e9c094fbbe57fc06ca2e17, type: 3}
+  - {fileID: 8300000, guid: f37d4c33d96774949b8f8309b70b4e43, type: 3}
+  - {fileID: 8300000, guid: 4361e3c5579dd6448a10521037942d7b, type: 3}
+  - {fileID: 8300000, guid: 49712f73ac65d5f429603c1ba14efafb, type: 3}
+  zombieHitSounds:
+  - {fileID: 8300000, guid: 5194dff558770374d83b1ee06206c9af, type: 3}
+  - {fileID: 8300000, guid: 8a7a209fc9f894647879285d76078640, type: 3}
+  - {fileID: 8300000, guid: ca19430933c2fe74eb9eea3c7510a0d2, type: 3}
+  - {fileID: 8300000, guid: 15e3c7e0f3a4f124ca21d7df8660f5f2, type: 3}
+  - {fileID: 8300000, guid: 2363a5ab255fc1a4fb3e3b11f39c8653, type: 3}
+  - {fileID: 8300000, guid: 54231afafbcf38e49b146fc7035d9df1, type: 3}
+  - {fileID: 8300000, guid: 95acf434e0668844390c25ed80962387, type: 3}

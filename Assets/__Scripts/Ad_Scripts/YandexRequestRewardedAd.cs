@@ -58,8 +58,8 @@ public class YandexRequestRewardedAd : MonoBehaviour
     public void HandleRewarded (object sender, Reward args)
         {
         Time.timeScale = 1;
-        playerGo.GetComponent<Player_Scr>().hp = 100;
-        playerGo.GetComponent<Player_Scr>().adBool = true;
+        playerGo.GetComponent<PlayerHealth>().hp = 100;
+        playerGo.GetComponent<PlayerHealth>().adBool = true;
         deathCanvas.gameObject.SetActive(false);
         }
     }

@@ -23,11 +23,13 @@ public class PlayerInventory:MonoBehaviour
     private float                           _usageDelay;
     private int                             _hpPerSecond;
     private int                             _drugUsingTimer;
+    private PlayerHealth                    _playerHealth;
 
     public void Start ()
     {
         _InitialisationLists();                             // Инициализировать списки
         playerScript = GetComponent<Player_Scr>();          // Заполнить ссылку на скрипт Player_Scr
+        _playerHealth = GetComponent<PlayerHealth>();       // Заполнить ссылку на ЗдоровьеИгрока
     }
     private void _InitialisationLists ()
     {
@@ -86,7 +88,7 @@ public class PlayerInventory:MonoBehaviour
     {
         if (drug.timeOfAction == 0)
         {
-            playerScript.hp += drug.recoverableHealth;
+            _playerHealth.hp += drug.recoverableHealth;
             _timeOfLastUse = Time.time;
         }
         else
@@ -94,10 +96,6 @@ public class PlayerInventory:MonoBehaviour
             _hpPerSecond = drug.recoverableHealth;
             _drugUsingTimer = drug.timeOfAction;
             _UseTheDrug();
-        }
-        if(playerScript.hp > 100)
-        {
-            playerScript.hp = 100;
         }
         _usageDelay = drug.rechargeTime;
         _timeOfLastUse = Time.time;
@@ -108,12 +106,8 @@ public class PlayerInventory:MonoBehaviour
         if (_drugUsingTimer > 0)
         {
             _drugUsingTimer -= 1;
-            playerScript.hp += _hpPerSecond;
+            _playerHealth.hp += _hpPerSecond;
             Invoke("_UseTheDrug", 1f);
-            if(playerScript.hp > 100)
-            {
-                playerScript.hp = 100;
-            }
         }
 
     }

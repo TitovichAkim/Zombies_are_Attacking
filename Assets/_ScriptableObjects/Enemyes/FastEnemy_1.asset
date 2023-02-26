@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6aedc33c4da57104e8320a3cd28856a0, type: 3}
+  m_Name: FastEnemy_1
+  m_EditorClassIdentifier: 
+  nameEnemy: Fast_Zombie_1
+  HP: 6
+  speedOfMovement: 3
+  speedRotation: 30
+  damage: 10
+  reload: 0.5
+  numSerial: 2
+  serialReload: 0.35
+  score: 3
+  coin: 2
+  probalityBonus: 0
+  attackingZoneRadius: 1
+  enemyPrefab: {fileID: 5980028080984318886, guid: 63cdfb7a4b811dd4b8188a63af713865, type: 3}

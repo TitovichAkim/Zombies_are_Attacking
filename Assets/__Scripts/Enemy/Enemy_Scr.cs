@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using static UnityEngine.GraphicsBuffer;
+
 public enum enemyState
 {
     stay,       // стоит на месте
@@ -11,154 +14,46 @@ public enum enemyState
 public class Enemy_Scr:MonoBehaviour
 {
     public enemyState   state;
-    [Header("Set in Inspector")]
-    public float        HP;                 // Уровень здоровья
-    public int          damage;             // Наносимый урон
-    public float        serialReload;       // Время перезарядки серии ударов
-    public int          numSerial;          // Количество ударов в серии
-    public float        reload;             // Время перезарядки внутри серии
-    public int          score;              // Количество очков, которое присваивается игроку за уничтожение
-    public int          coin;               // Количество Coin, которое присваивается игроку за уничтожение
-    public float        probalityBonus;     // Вероятность выпадения бонуса при уничтожении
 
-    public List<AudioClip> randomSounds;    // Рандомные звуки зомби
-    public List<AudioClip> biteSounds;      // Звуки укусов
-    public List<AudioClip> hitSounds;       // Звуки попаданий пулями
+    [Header("SetInSpawner")]
+    // GameObjects
+    public GameObject               spawner;                // Ссылка на спаунер (назначается спаунером)
+    public GameObject               player;                 // Ссылка на игрока (назначается спаунером)
+    public GameObject               attackingZone;          // Ссылка на зону атаки (назначается спаунером)
+    // Classes
+    public EnemyNavigation          navigation;             // Ссылка на скрипт навигации (назначается спаунером)
+    public Enemy_Spawner_Scr        spawnerScr;             // Ссылка на скрипт спаунера (назначается спаунером)
+    // ScriptableObjects
+    public EnemyScriptableObject    enemyParametersSO;      // Ссылка на СО противника (назначается спаунером)
+    public SoundsScriptableObject   sounds;                 // Ссылка на звуковую базу (назначается спаунером)
 
+    [Header("SetInStart")]
 
+    public Rigidbody2D              rigid2D;                // Ссылка на Rigidbody2d объекта
+    private EnemyAttacking          _enemyAttacking;        // Ссылка на скрипт атаки (назначается в старте)
+    public AudioSource              audioSource;            // Ссылка на компонент, воспроизводящий звуки
 
-    [Header("Set Dynamically")]
-    public bool         attInd = false;         // Режим атаки
-    public bool         forcedGoalBool = false; // Является ли этот объект приоритетным
-
-    public float        attackMoment;           // Момент последнего удара
-    public float        theMomentOfGrowling;    // Момент последнего рычания
-    public float        timerOfGrowling;        // Таймер рычания
-
-    public EnemyNavigation navigation;          // Ссылка на скрипт навигации
-    public Enemy_Spawner_Scr spawnerScr;        // Ссылка на скрипт спаунера
-
-    public GameObject   spawner;        // Ссылка на спаунер
-    public GameObject   player;         // Ссылка на игрока
-    public GameObject   targetGO;       // Целевой объект
-    public Vector2      playerPos;      // Координаты позиции игрока
-    public Vector2      goPos;          // Координаты позиции объекта
-
-    public Rigidbody2D rigid2D;        // Ссылка на Rigidbody2d объекта
-    public AudioSource audioSource;    // Ссылка на компонент, воспроизводящий звуки
-
-    // Параметры, которые зависят от типа объекта
-    public float        moveSpeed;     // Скорость движения
-
-
+    [Header("SetDynamically")]
+    public bool                     forcedGoalBool = false; // Является ли этот объект приоритетным
+    private GameObject              _targetGO;              // Целевой объект 
 
     public void Start ()
     {
-        rigid2D = this.gameObject.GetComponent<Rigidbody2D>();      // Заполнить ссылку на Rigidbody2d объекта
-        navigation = this.gameObject.GetComponent<EnemyNavigation>(); // Заполнить ссылку на скрипт навигации
+        _enemyAttacking = GetComponent<EnemyAttacking>();               // Заполнить ссылку на скрипт атаки
+        rigid2D = this.gameObject.GetComponent<Rigidbody2D>();          // Заполнить ссылку на Rigidbody2d объекта
 
-        timerOfGrowling = Random.Range(4f, 20f);                    // При создании объекта записать новый таймер рычания
-        theMomentOfGrowling = Time.time;                            // и текущий момент, чтобы сразу никто не рычал
+        //attackingZone.GetComponent<CircleCollider2D>().radius = enemyParametersSO.attackingZoneRadius;
+        attackingZone.GetComponent<EnemyAttackingZone>().enemyScript = this;
         CREATE_AUDIO_SOURSE();
     }
 
-    public void FixedUpdate ()
-    {
-        playerPos = player.transform.position;
-        goPos = this.gameObject.transform.position;
-
-        if (state == enemyState.attacking)
-        {
-            if(targetGO != null)
-            {
-                ATTACK(targetGO);       // Атаковать
-            }
-            else
-            {
-                StateRedactor(player);
-            }
-        }
-
-
-        if(timerOfGrowling <= Time.time - theMomentOfGrowling)
-        {   // Если таймер рычания меньше, чем разница между текущим моментом и моментом последнего рычания
-            PLAY_AUDIO(0);                                          // Воспроизвести звук рычания
-            theMomentOfGrowling = Time.time;                        // Записать момент последнего рычания
-            timerOfGrowling = Random.Range(4f, 20f);                // Создать новый таймер до следующего рычания
-        }
-
-    }
-
-    public void OnTriggerEnter2D (Collider2D collision)         // Если вошел в соприкосновение с ключевым объектом (пуля, игрок, стена)
-    {
-
-        if(collision.gameObject.layer == 8)                                                     // Если колиззионный объект - пуля
-        {                                                                                       // Если коллайдер - bullet
-            HP -= collision.gameObject.GetComponent<Bullet_Scr>().damage;                       // Отнять HP равное damage из пули
-            PLAY_AUDIO(1);                                                                      // Воспроизвести звук попадания в туловище пули
-            if(HP <= 0)
-            {                                                                      // Если HP меньше или равно нуля
-                Destroy(this.gameObject);                                                       // Уничтожить объект
-                spawnerScr.enemyList.Remove(this.gameObject);    // Удалить объект из списка врагов, находящихся на сцене
-                spawnerScr.score += score;                       // Добавить очки при убийстве врага
-                player.GetComponent<Player_Scr>().coin += coin;                                 // Добавить Coin при убийстве врага
-                spawnerScr.SCORE_BOARD_RELOAD();                 // Перезагрузить доску очков
-                if(spawnerScr.enemyList.Count == 0)              // Если список врагов на сцене опустел
-                {
-                    spawnerScr.startTime = Time.time;            // Записать момент, когда закончилась волна
-                }
-            }
-        }
-        if (collision.gameObject.layer == 6 || collision.gameObject.layer == 13)                // Если коснулся игрока или двери
-        {
-            StateRedactor(collision.gameObject);                                                // Вызвать редактор состояния
-        }
-
-    }
-    /*
-    public void OnTriggerStay2D (Collider2D collision)          // Если вошел в соприкосновение с дверью
-    {
-        if(collision.gameObject.layer == 13 && reload <= Time.time - attackMoment && collision.gameObject.GetComponent<Door_Scr>().doorHp > 0)
-        {
-            navigation.SetTarget(collision.transform);
-            attackMoment = Time.time;
-            collision.gameObject.GetComponent<Door_Scr>().doorHp -= damage;
-            collision.gameObject.GetComponent<Door_Scr>().PLAY_AUDIO(2);
-        }
-    }*/
-
-
-    public void ATTACK (GameObject target)
-    {
-        attackMoment = Time.time;
-        if (target.layer == 6)
-        {
-            target.GetComponent<Player_Scr>().hp -= damage;
-            PLAY_AUDIO(1);  // Воспроизвести звук укуса
-        }
-        else if (target.layer == 13)
-        {
-            target.GetComponent<Door_Scr>().doorHp -= damage;
-            target.GetComponent<Door_Scr>().PLAY_AUDIO(2);
-        }
-
-        /*
-        if(Vector3.Distance(playerPos, goPos) <= 1.1f & reload <= Time.time - attackMoment)
-        {
-            attackMoment = Time.time;
-            player.GetComponent<Player_Scr>().hp -= damage;
-
-            PLAY_AUDIO(1);  // Воспроизвести звук укуса
-        }*/
-    }
-
-    public void CREATE_AUDIO_SOURSE ()
+    public void CREATE_AUDIO_SOURSE ()      // Создает компонент, воспроизводящий звуки зомби и настраивает его
     {
         this.gameObject.AddComponent<AudioSource>();
         audioSource = this.gameObject.GetComponent<AudioSource>();
         audioSource.volume = 0.5f;
         audioSource.spatialBlend = 1;
-    } // Создает компонент, воспроизводящий звуки зомби и настраивает его
+    }
 
     public void PLAY_AUDIO (int aud)
     {
@@ -167,13 +62,13 @@ public class Enemy_Scr:MonoBehaviour
             switch(aud)
             {
                 case 0:     // Рандомный рык или что-то еще 
-                    audioSource.PlayOneShot(randomSounds[Random.Range(0, randomSounds.Count - 1)]);
+                    audioSource.PlayOneShot(sounds.zombieWalkingSounds[Random.Range(0, sounds.zombieWalkingSounds.Length)]);
                     break;
                 case 1:     // Звуки укусов
-                    audioSource.PlayOneShot(biteSounds[Random.Range(0, biteSounds.Count - 1)]);
+                    audioSource.PlayOneShot(sounds.zombieBiteSounds[Random.Range(0, sounds.zombieBiteSounds.Length)]);
                     break;
                 case 2:     // Звуки попадания в тело патронов
-                    audioSource.PlayOneShot(hitSounds[Random.Range(0, hitSounds.Count - 1)]);
+                    audioSource.PlayOneShot(sounds.zombieHitSounds[Random.Range(0, sounds.zombieHitSounds.Length)]);
                     break;
             }
         }
@@ -204,31 +99,71 @@ public class Enemy_Scr:MonoBehaviour
         SELECT_AN_OBJECT();         // Редактирует приоритеты цели
     }
 
-    public void StateRedactor (GameObject target = null)
+    public void StateRedactor (GameObject target = null, bool destroy = false)
     {
-
-        if (target == null)
+        if(destroy)
         {
-            state = enemyState.stay;
-        }
-
-        if (target != null)
+            state = enemyState.dead;
+        } 
+        else
         {
-            if (Vector3.Distance(target.transform.position, this.gameObject.transform.position) > 1.5f) // Если дистанция до цели не в пределах 1.5 метров
+            if(target != null)
             {
-                state = enemyState.stalking;                                                            // Включить режим движения к цели
-                navigation.agent.speed = moveSpeed;                                                     // Возобновить скорость навигации
-            }
+                _targetGO = target;
+                state = enemyState.attacking;                                                           // Включить режим атаки
+            } 
             else
             {
-                                                                                                        // Если дистанция до цели не в пределах 1.5 метров
+                if(StaticGameManager.gameMode != "survival")
+                {
+                    state = enemyState.stay;
+                }
+                else
+                {
+                    state = enemyState.stalking;                                                            // Включить режим движения к цели
+                }
             }
-            {
-                state = enemyState.attacking;                                                           // Включить режим атаки
-                navigation.agent.speed = 0;                                                             // Скорость - ноль
-            }
-            targetGO = target;                                                                          // Целевой игровой объект - расширяющая цель
         }
-        
+        СhangeState();  // Выполнить все действия по назначенному состоянию
+    }
+
+    private void СhangeState () // Изменяет параметры противника в зависимости от его нового состояния
+    {
+
+        switch(state)
+        {
+            case enemyState.stay:
+
+                break;
+            case enemyState.walk:
+                RepeatTheSound();
+                break;
+            case enemyState.stalking:
+
+                navigation.agent.speed =  enemyParametersSO.speedOfMovement;                            // Возобновить скорость навигации
+                navigation.InvokeRepeating("UpdatePlayerPosition", 0f, 1f);                             // Запустить цикл перерисовки пути к цели
+                RepeatTheSound();
+                break;
+
+            case enemyState.attacking:
+
+                navigation.agent.speed = 0;                                                             // Скорость - ноль
+                _enemyAttacking.targetGO = _targetGO;                                                   // назначить цель для атаки
+                StartCoroutine(_enemyAttacking.AttackTimer());                                          // Запустить корутину атаки
+                break;
+
+            case enemyState.dead:
+                Destroy(gameObject);                                                                    // Уничтожить объект
+                break;
+        }
+    }
+
+    private void RepeatTheSound ()      // Повторяет указанный звук. Пока это звук при приследовании и прогулке
+    {
+        if (state == enemyState.walk || state == enemyState.walk)
+        {
+            PLAY_AUDIO(0);                                          // Воспроизвести звук рычания
+            Invoke("RepeatTheSound", Random.Range(4f, 20f));        // Назначить повторение этого метода через рандомный промежуток времени
+        }
     }
 }

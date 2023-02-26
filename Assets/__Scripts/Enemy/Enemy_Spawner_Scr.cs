@@ -13,7 +13,7 @@ public class Enemy_Spawner_Scr:MonoBehaviour
     public TextAsset                    spawnerBase_tx;     // Ссылка на текстовую базу координат спаунеров
     public TextAsset                    waveBase_tx;        // Ссылка на список врагов и их тип, которые будут в волне
 
-    public List<GameObject>             enemyBase = new List<GameObject>(); // Хранит ссылки на префабы всех врагов
+    public EnemyScriptableObject[]      enemySOBase;        // База параметров противников
     public GameObject                   player;             // Ссылка на игрока
     public GameObject                   WaveTextBoard;      // Ссылка на доску с надписью какая нынче волна
     public GameObject                   ScoreTextBoard;     // Ссылка на доску с количеством очков
@@ -23,13 +23,15 @@ public class Enemy_Spawner_Scr:MonoBehaviour
     public float                        startTime;          // Время активации сцены
     public Vector2[]                    spawnerBase;        // База координат точек спауна
     public List<int>                    waveBase;           // Для чтения врагов спаунером
-    public int                          score;              // Количество очков
+    private int                         _score;             // Количество очков
 
 
     [Header("Для спауна врагов на сцене")]
-    public List<GameObject>             enemyList;          // Будет хранить объекты всех врагов, находящихся на карте
+    public List<GameObject>             _enemyList;         // Будет хранить объекты всех врагов, находящихся на карте
     public List<Vector2>                spawnList;          // Будет хранить [номер противника в базе противников, оставшееся количество противников в этой волне]
     public Vector2                      enemyesBySpawnList; // Динамическая переменная для создания списка данной волны
+    public GameObject                   attackingZone;      // 
+    public SoundsScriptableObject       soundsBase;         // База всех звуков
 
     public int                          waveNumber;         // Хранит номер волны
     private float                       spawnMoment;        // Момент последнего спауна
@@ -38,19 +40,36 @@ public class Enemy_Spawner_Scr:MonoBehaviour
 
     private int                         H;                  // Для считывания базы спауна
     private int                         E;                  // Для считывания базы спауна
+    #region ФУНКЦИИ
+    public int score
+    {
+        get
+        {
+            return (_score);
+        }
+        set
+        {
+            _score = value;
+            ScoreTextBoard.GetComponent<Text>().text = score.ToString();
+        }
+    }
+    public List<GameObject> enemyList
+    {
+        get
+        {
+            return (_enemyList);
+        }
+        set
+        {
+            _enemyList = value;
+            if (_enemyList.Count == 0)
+            {
+                startTime = Time.time;            // Записать момент, когда закончилась волна
+            }
+        }
+    }
 
-    [Header("Параметры врага")]
-    public string[]                     enemyesNames = new string[13];      // Хранит имена всех вариантов противника
-    public int[]                        enemyesHP = new int[13];            // Хранит количество HP всех вариантов противника
-    public float[]                      enemyesSpeed = new float[13];       // Хранит скорость всех вариантов противника
-    public float[]                      enemyesRotationSpeed = new float[13];// Хранит скорость поворота всех вариантов противника
-    public int[]                        enemyesDamage = new int[13];        // Хранит наносимый урон всех вариантов противника
-    public float[]                      enemyesSerialSpeed = new float[13]; // Хранит время между сериями атак всех вариантов противника
-    public int[]                        enemyesNumSerial = new int[13];     // Хранит количество ударов в серии атак всех вариантов противника
-    public float[]                      enemyesAttackSpeed = new float[13]; // Хранит скорость атаки в серии всех вариантов противника
-    public int[]                        enemyesScore = new int[13];         // Хранит количество Score, которые выпадают при уничтожении всех вариантов противника
-    public int[]                        enemyesCoin = new int[13];          // Хранит количество Coin, которые выпадают при уничтожении всех вариантов противника
-    public float[]                      enemyesProbalityBonus = new float[13];// Хранит вероятность выпадения бонуса при уничтожении всех вариантов противника
+    #endregion
 
     public void Start ()
     {
@@ -59,21 +78,17 @@ public class Enemy_Spawner_Scr:MonoBehaviour
         waveBase = new List<int>();                         // Инициализация списка врагов в волне
         spawnList = new List<Vector2>();                    // Инициализация списка врагов в волне
 
-        READ_ENEMY_BASE();                                  // Чтение текстового файла с параметрами всех противников
         READ_SPAWNER_BASE();                                // Чтение текстового файла с координатами спаунов
 
         waveNumber = 0;                                     // При старте игры устанавливает значение волны 0, чтобы успеть подготовиться
         score = 0;
         spawnIndex = -1;                                    // При старте игры устанавливает индекс спауна -1
 
-        SCORE_BOARD_RELOAD();
-
         startTime = Time.time;                              // Записать время старта сцены
     }
 
     public void FixedUpdate ()
     {
-
         if(spawnIndex > (-1) & spawnTime <= (Time.time - spawnMoment) & waveNumber > 0 & enemyList.Count < maxSpawnObjects)
         {        // Если База данной волны содержит элементы и время после последнего спауна больше необходимой задержки, номер волны больше нуля, количество врагов на сцене меньше максимального
             CREATE_ENEMY();                     // Создавать противников
@@ -92,27 +107,6 @@ public class Enemy_Spawner_Scr:MonoBehaviour
                 WaveTextBoard.GetComponent<Text>().text = waveNumber.ToString();// Отобразить новую волну на экране
                 READ_WAVE_BASE_TXT(waveNumber);                                 // Считать состав данной волны
             }
-        }
-    }
-    // Читает характеристики противников типа скорости, величины урона и прочие 
-    public void READ_ENEMY_BASE ()
-    {
-        string[] eBase = enemyBase_tx.text.Split('\n');
-        for(int i = 0; i < eBase.Length; i++)
-        {
-            string[] oneEnemyBase = eBase[i].Split(' ');
-            enemyesNames[i] = oneEnemyBase[0];
-            enemyesHP[i] = int.Parse(oneEnemyBase[1]);
-            enemyesSpeed[i] = float.Parse(oneEnemyBase[2]);
-            enemyesRotationSpeed[i] = float.Parse(oneEnemyBase[3]);
-            enemyesDamage[i] = int.Parse(oneEnemyBase[4]);
-            enemyesSerialSpeed[i] = float.Parse(oneEnemyBase[5]);
-            enemyesNumSerial[i] = int.Parse(oneEnemyBase[6]);
-            enemyesAttackSpeed[i] = float.Parse(oneEnemyBase[7]);
-            enemyesScore[i] = int.Parse(oneEnemyBase[8]);
-            enemyesCoin[i] = int.Parse(oneEnemyBase[9]);
-            enemyesProbalityBonus[i] = float.Parse(oneEnemyBase[10]);
-
         }
     }
 
@@ -163,30 +157,33 @@ public class Enemy_Spawner_Scr:MonoBehaviour
             random = 0;
         }
         int enemyIndex = (int)spawnList[random].x;
-        GameObject enemyGO = Instantiate(enemyBase[enemyIndex]);        // Создать копию врага на поле
+
+        GameObject enemyGO = Instantiate(enemySOBase[enemyIndex].enemyPrefab);        // Создать копию врага на поле
+        AddComponents(enemyGO);
         Enemy_Scr scriptEnemy = enemyGO.GetComponent<Enemy_Scr>();
         EnemyNavigation navigationEnemy = enemyGO.GetComponent<EnemyNavigation>();
+        EnemyHealth enemyHealth = enemyGO.GetComponent<EnemyHealth>();
+        EnemyAttacking enemyAttacking = enemyGO.GetComponent<EnemyAttacking>();
+
         enemyGO.transform.position = spawnerBase[Random.Range(0, spawnerBase.Length)];   // Разместить объект рандомно в точке спауна
         scriptEnemy.spawner = this.gameObject;          // Сделать ссылку на спаунер
-        scriptEnemy.spawnerScr = this;                  // сделать ссылку на скрипт спаунера
+        scriptEnemy.spawnerScr = this;                  // Сделать ссылку на скрипт спаунера
         scriptEnemy.player = player;                    // Сделать ссылку на игрока
-        navigationEnemy.goal = player.transform;        // Сделать ссылку на трансформ игрока во вкладке "ЦЕЛЬ"          
+        scriptEnemy.sounds = soundsBase;                // Сделать ссылку на базу всех звуков
+        scriptEnemy.navigation = navigationEnemy;       // Сделать ссылку на скрипт навигации
+        enemyHealth.spawner = this;                     // Сделать ссылку на скрипт спаунера
+        enemyHealth.playerScript = player.GetComponent<Player_Scr>();// Сделать ссылку на игрока
+
+        navigationEnemy.goal = player.transform;        // Сделать ссылку на трансформ игрока во вкладке "ЦЕЛЬ"
+        
         enemyList.Add(enemyGO);
 
-        // Присвоить противнику личные параметры
-        enemyGO.name = enemyesNames[enemyIndex];
-        scriptEnemy.HP = enemyesHP[enemyIndex];
-        navigationEnemy.moveSpeed = enemyesSpeed[enemyIndex];
-        navigationEnemy.rotationSpeed = enemyesRotationSpeed[enemyIndex];
-        scriptEnemy.damage = enemyesDamage[enemyIndex];
-        scriptEnemy.serialReload = enemyesSerialSpeed[enemyIndex];
-        scriptEnemy.numSerial = enemyesNumSerial[enemyIndex];
-        scriptEnemy.reload = enemyesAttackSpeed[enemyIndex];
-        scriptEnemy.score = enemyesScore[enemyIndex];
-        scriptEnemy.coin = enemyesCoin[enemyIndex];
-        scriptEnemy.probalityBonus = enemyesProbalityBonus[enemyIndex];
+        scriptEnemy.enemyParametersSO = enemySOBase[enemyIndex];
+        enemyHealth.enemyParametersSO = enemySOBase[enemyIndex];
+        enemyAttacking.enemyParametersSO = enemySOBase[enemyIndex];
+        navigationEnemy.enemyParametersSO = enemySOBase[enemyIndex];
 
-        scriptEnemy.state = enemyState.stalking;                        // Статус противника - преследование
+        scriptEnemy.StateRedactor();                                    // Назначить новое состояние противника
 
         spawnList[random] = new Vector2(spawnList[random].x, spawnList[random].y - 1); // Отнять единицу от количества врагов используемого сейчас типв
         if(spawnList[random][1] == 0)                                   // Если количество врагов данного типа равно нулю
@@ -198,8 +195,14 @@ public class Enemy_Spawner_Scr:MonoBehaviour
 
     }
 
-    public void SCORE_BOARD_RELOAD ()
+    void AddComponents (GameObject enemy)
     {
-        ScoreTextBoard.GetComponent<Text>().text = score.ToString();
+        enemy.AddComponent<Enemy_Scr>();
+        enemy.AddComponent<EnemyNavigation>();
+        enemy.AddComponent<EnemyHealth>();
+        enemy.AddComponent<EnemyAttacking>();
+
+        GameObject zone = Instantiate(attackingZone, enemy.transform);
+        enemy.GetComponent<Enemy_Scr>().attackingZone = zone;
     }
 }

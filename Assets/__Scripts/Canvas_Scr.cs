@@ -22,21 +22,22 @@ public class Canvas_Scr:MonoBehaviour
     public GameObject scoreBoard;
     public GameObject player;
 
-    public Player_Scr playerScr;
-
+    private Player_Scr      _playerScr;
+    private PlayerHealth    _playerHealth;
 
     public void Start ()
     {
-        playerScr = player.GetComponent<Player_Scr>();
+        _playerScr = player.GetComponent<Player_Scr>();
+        _playerHealth = player.GetComponent<PlayerHealth>();
     }
 
     public void Update ()
     {
-        if(player != null && playerScr.hp > 0)
+        if(player != null && _playerHealth.hp > 0)
         {
-            hp = playerScr.hp;
-            loadMag = playerScr.loadMagazine[playerScr.activeWeapon];
-            storeMag = playerScr.storeMagazine;
+            hp = _playerHealth.hp;
+            loadMag = _playerScr.loadMagazine[_playerScr.activeWeapon];
+            storeMag = _playerScr.storeMagazine;
 
             HP_Text.GetComponent<Text>().text = hp.ToString();
             HP_Dial.GetComponent<Image>().fillAmount = hp * 0.01f;
@@ -44,7 +45,7 @@ public class Canvas_Scr:MonoBehaviour
             loadMag_Text.GetComponent<Text>().text = loadMag + " / " + storeMag;
             loadMag_Dial.GetComponent<Image>().fillAmount = loadMag / storeMag;
 
-            coinPanel.GetComponent<Text>().text = playerScr.coin.ToString();        // Заполнить панель, отображающую колчество денег
+            coinPanel.GetComponent<Text>().text = _playerScr.coin.ToString();        // Заполнить панель, отображающую колчество денег
         }
     }
 

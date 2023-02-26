@@ -9,11 +9,8 @@ public enum doorState
     broken  // сломана
 }
 
-public class Door_Scr:MonoBehaviour
+public class Door_Scr: MonoBehaviour, IDamageabel
 {
-
-
-
     private int             _doorHp = 30;           // Здоровье двери
     public BoxCollider2D    doorCollider;           // Ссылка на коллайдер
     public SpriteRenderer   doorSprite;             // Ссылка на спрайт
@@ -24,6 +21,23 @@ public class Door_Scr:MonoBehaviour
 
 
     doorState               state = doorState.intact;
+
+    public int doorHp
+    {
+        get
+        {
+            return (_doorHp);
+        }
+        set
+        {
+            _doorHp = value;
+            if(_doorHp <= 0)
+            {
+                DoorDestroy();
+            }
+        }
+    }
+
     public void Start ()
     {
         this.gameObject.AddComponent<AudioSource>();                // Прикрепить компонент воспроизведения звуков
@@ -36,23 +50,6 @@ public class Door_Scr:MonoBehaviour
         came = GameObject.FindGameObjectWithTag("MainCamera");
 
     }
-
-    public void Update ()
-    {
-        if(_doorHp <= 0)
-        {                     // Если количество HP двери меньше или равно нуля
-            doorCollider.enabled = false;       // отключить коллайдер
-            doorSprite.enabled = false;         // отключить отображение двери
-
-            if(state == doorState.intact)
-            {    // Если до этого было состояние "нетронутый"
-                PLAY_AUDIO(0);                  // Произвести звук разрушения
-                state = doorState.broken;       // Изменить состояние двери на "сломана"
-            }
-
-        }
-    }
-
     public void OnTriggerStay2D (Collider2D collision)
     {
         if(collision.gameObject.name == "Player")
@@ -63,7 +60,6 @@ public class Door_Scr:MonoBehaviour
                 {
                     collision.gameObject.GetComponent<Player_Scr>().coin -= 1;
                     came.GetComponent<Enemy_Spawner_Scr>().score += 1;
-                    came.GetComponent<Enemy_Spawner_Scr>().SCORE_BOARD_RELOAD();
                 }
                 _doorHp = 30;
                 doorCollider.enabled = true;
@@ -91,16 +87,23 @@ public class Door_Scr:MonoBehaviour
                 break;
         }
     }
-    public int doorHp
-    {
-        get
-        {
-            return(_doorHp);
-        }
 
-        set
-        {
-            _doorHp = value;
+    public void ApplyDamage (int damageValue)
+    {
+        doorHp -= damageValue;
+        PLAY_AUDIO(2);
+    }
+    void DoorDestroy ()
+    {
+        _doorHp = 0;
+        doorCollider.enabled = false;       // отключить коллайдер
+        doorSprite.enabled = false;         // отключить отображение двери
+
+        if(state == doorState.intact)
+        {    // Если до этого было состояние "нетронутый"
+            PLAY_AUDIO(0);                  // Произвести звук разрушения
+            state = doorState.broken;       // Изменить состояние двери на "сломана"
         }
     }
+
 }

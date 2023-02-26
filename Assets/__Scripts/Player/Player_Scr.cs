@@ -67,18 +67,6 @@ public class Player_Scr:MonoBehaviour
         {
             this.gameObject.GetComponent<Player_Controller>().goal = null;
         }
-
-        if(hp <= 0)
-        {
-            if(adBool == false)
-            {
-                gameMenu.GetComponent<Game_Menu_Scr>().OPEN_AD_FORHP_ANSWER("YES");
-            }
-            else
-            {
-                gameMenu.GetComponent<Game_Menu_Scr>().OPEN_AD_FORHP_ANSWER("NO");
-            }
-        }
     }
 
     #region —Œ¬≈–ÿ»“‹ ¬€—“–≈À
